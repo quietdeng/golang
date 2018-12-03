@@ -10,7 +10,7 @@ import (
 
 const (
 	HTTP_HOST = "0.0.0.0"
-	HTTP_PORT = 8080
+	HTTP_PORT = 80
 )
 
 //Article xxxx
@@ -26,21 +26,24 @@ type JSON struct {
 }
 
 func main() {
-	http.HandleFunc("/detail", Detail)
+	http.HandleFunc("/index.php", DetailHandle)
 
 	fmt.Println(fmt.Sprintf("listen %s:%d", HTTP_HOST, HTTP_PORT))
-	http.ListenAndServe(fmt.Sprintf("%s:%d", HTTP_HOST, HTTP_PORT), nil)
+	err := http.ListenAndServe(fmt.Sprintf("%s:%d", HTTP_HOST, HTTP_PORT), nil)
+	if err != nil {
+		fmt.Println(fmt.Sprintf("启动失败，检查%d端口是否被占用。", HTTP_PORT))
+	}
 }
 
 //Detail 详情
-func Detail(w http.ResponseWriter, r *http.Request) {
+func DetailHandle(w http.ResponseWriter, r *http.Request) {
 	data := &JSON{}
 	data.Status = false
 	data.Message = "failure"
 
 	port := r.FormValue("port")
 	url := fmt.Sprintf("http://127.0.0.1:22999/api/refresh_sessions/%s", port)
-	//url = "http://baidu.com"
+	//url = "http://www.baidu.com"
 
 	resp, err := http.Post(
 		url,
