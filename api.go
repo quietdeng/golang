@@ -13,13 +13,6 @@ const (
 	HTTP_PORT = 80
 )
 
-//Article xxxx
-type Article struct {
-	ID        int    `json:"id"`
-	Title     string `json:"title"`
-	CreatedAt int    `json:"created_at"`
-}
-
 type JSON struct {
 	Status  bool   `json:"status"`
 	Message string `json:"message"`
@@ -81,8 +74,6 @@ func RecentHandle(w http.ResponseWriter, r *http.Request) {
 	data.Message = "failure"
 
 	url := "http://127.0.0.1:22999/api/recent_stats"
-	//url = "http://www.baidu.com"
-
 	resp, err := http.Get(url)
 
 	if err != nil {
