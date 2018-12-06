@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -117,6 +118,38 @@ func (db *DB) GetList(field string, order string, start int, limit int) (data []
 	return
 }
 
+func (db *DB) Create(data map[string]string) (id int64, err error) {
+	var (
+		fieldArr []string
+		valueArr []string
+		placeArr []string
+	)
+	for field, value := range data {
+		fieldArr = append(fieldArr, field)
+		valueArr = append(valueArr, value)
+		placeArr = append(placeArr, "?")
+	}
+
+	queryString := fmt.Sprintf(
+		"INSERT %s (%s) values (%s)",
+		db.TableName, strings.Join(fieldArr, ","), strings.Join(valueArr, ","))
+	fmt.Println(queryString)
+
+	//err = db.DBConnect().Query(queryString)
+	return
+	/*
+		fmt.Println(fmt.Sprintf("INSERT %s (%s) values (%s)",
+			db.TableName, strings.Join(fieldArr, ","), strings.Join(placeArr, ",")))
+		stmt, err := db.DBConnect().Prepare(
+			fmt.Sprintf("INSERT %s (%s) values (%s)",
+				db.TableName, strings.Join(fieldArr, ","), strings.Join(placeArr, ",")))
+
+		res, err := stmt.Exec("123", "123456", "7849")
+		id, err = res.LastInsertId()
+		fmt.Println(id)
+	*/
+}
+
 func (db *DB) Update(map[string]string) (id int64, err error) {
 	stmt, err := db.DBConnect().Prepare(`UPDATE student SET age=? WHERE id=?`)
 	res, err := stmt.Exec(21, 5)
@@ -130,13 +163,5 @@ func (db *DB) Delete([]string) (id int64, err error) {
 	res, err := stmt.Exec(5)
 	num, err := res.RowsAffected()
 	fmt.Println(num)
-	return
-}
-
-func (db *DB) insert([]string) (id int64, err error) {
-	stmt, err := db.DBConnect().Prepare(`INSERT student (name,age) values (?,?)`)
-	res, err := stmt.Exec(21, 5)
-	id, err = res.LastInsertId()
-	fmt.Println(id)
 	return
 }
