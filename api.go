@@ -27,6 +27,7 @@ type JSON struct {
 
 func main() {
 	http.HandleFunc("/index.php", DetailHandle)
+	http.HandleFunc("/recent_stats.php", RecentHandle)
 
 	fmt.Println(fmt.Sprintf("listen %s:%d", HTTP_HOST, HTTP_PORT))
 	err := http.ListenAndServe(fmt.Sprintf("%s:%d", HTTP_HOST, HTTP_PORT), nil)
@@ -35,7 +36,7 @@ func main() {
 	}
 }
 
-//Detail 详情
+//DetailHandle 详情
 func DetailHandle(w http.ResponseWriter, r *http.Request) {
 	data := &JSON{}
 	data.Status = false
@@ -70,6 +71,40 @@ func DetailHandle(w http.ResponseWriter, r *http.Request) {
 	JSONReturn(w, *data)
 
 	fmt.Println("request success")
+	fmt.Println("request success: http://127.0.0.1:22999/api/refresh_sessions")
+	return
+}
+
+func RecentHandle(w http.ResponseWriter, r *http.Request) {
+	data := &JSON{}
+	data.Status = false
+	data.Message = "failure"
+
+	url := "http://127.0.0.1:22999/api/recent_stats"
+	//url = "http://www.baidu.com"
+
+	resp, err := http.Get(url)
+
+	if err != nil {
+		fmt.Println("request failure")
+		data.Message = "request failure"
+		JSONReturn(w, *data)
+		return
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("request ReadAll failure")
+		data.Message = "request ReadAll failure" + string(body)
+		JSONReturn(w, *data)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json;charset=UTF-8")
+	w.Write(body)
+
+	fmt.Println("request success: http://127.0.0.1:22999/api/recent_stats")
 	return
 }
 
